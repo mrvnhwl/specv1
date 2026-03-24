@@ -35,7 +35,7 @@ export default function RecommendationsPage() {
     <main className="mx-auto max-w-7xl px-6 py-10">
       <section className="rounded-3xl border border-line bg-panel/90 p-6 shadow-glow">
         <p className="text-sm uppercase tracking-[0.3em] text-cyan">Recommendation Engine</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">Games matched to your current device and preferences</h1>
+        <h1 className="mt-2 text-3xl font-semibold text-white">Games matched to your current device and preferences.</h1>
         <p className="mt-2 text-soft">
           Using <span className="text-white">{device?.label || 'your device'}</span> with genres <span className="text-white">{preferences.genres.join(', ')}</span>.
         </p>
