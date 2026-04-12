@@ -26,10 +26,37 @@ export default function RecommendationsPage() {
     const savedPreferences = JSON.parse(localStorage.getItem('gamewise-preferences') || 'null') as PreferenceAnswers | null;
     const activeDevice = savedDevices[0] || { osName: 'Windows', browser: 'Chrome', ramGb: 8, logicalCores: 8, label: 'Demo Device' };
     const activePreferences = savedPreferences || defaultPreferences;
+
     setDevice(activeDevice);
     setPreferences(activePreferences);
     setResults(scoreGames(activeDevice, activePreferences));
   }, []);
+
+  const handlePreferencesChange = (updated: PreferenceAnswers) => {
+    setPreferences(updated);
+    localStorage.setItem('gamewise-preferences', JSON.stringify(updated));
+    if (device) {
+      setResults(scoreGames(device, updated));
+    }
+  };
+
+  // Filter results by selected genres and modes
+  const filteredResults = results.filter((game) => {
+    // Genre filter: game must include at least one selected genre
+    const genreMatch =
+      preferences.genres.length === 0 ||
+      game.genres.some((g) => preferences.genres.includes(g));
+
+    // Mode filter: game genres or tags must include at least one selected mode
+    const modeMatch =
+      preferences.modes.length === 0 ||
+      preferences.modes.some((mode) =>
+        game.genres.some((g) => g.toLowerCase() === mode.toLowerCase()) ||
+        game.tags.some((t) => t.toLowerCase() === mode.toLowerCase())
+      );
+
+    return genreMatch && modeMatch;
+  });
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
@@ -37,18 +64,28 @@ export default function RecommendationsPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-cyan">Recommendation Engine</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Games matched to your current device and preferences</h1>
         <p className="mt-2 text-soft">
-          Using <span className="text-white">{device?.label || 'your device'}</span> with genres <span className="text-white">{preferences.genres.join(', ')}</span>.
+          Using <span className="text-white">{device?.label || 'your device'}</span> with genres{' '}
+          <span className="text-white">
+            {preferences.genres.length > 0 ? preferences.genres.join(', ') : 'none selected'}
+          </span>.
         </p>
       </section>
 
       <div className="mt-8">
-        <GenrePicker />
+        <GenrePicker value={preferences} onChange={handlePreferencesChange} />
       </div>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {results.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
+        {filteredResults.length > 0 ? (
+          filteredResults.map((game) => (
+            <GameCard key={game.id} game={game} />
+          ))
+        ) : (
+          <div className="col-span-full rounded-2xl border border-line bg-white/5 p-10 text-center text-soft">
+            <p className="text-lg text-white">No games match your current filters.</p>
+            <p className="mt-2 text-sm">Try selecting more genres or modes above.</p>
+          </div>
+        )}
       </section>
     </main>
   );

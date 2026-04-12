@@ -1,7 +1,21 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { Cpu, Gamepad2, MessageSquareText, Sparkles } from 'lucide-react';
 import { DeviceScanCard } from '@/components/device-scan-card';
 import { GenrePicker } from '@/components/genre-picker';
+import { PreferenceAnswers } from '@/lib/types';
+
+const defaultPreferences: PreferenceAnswers = {
+  genres: ['RPG', 'Open World'],
+  customGenre: '',
+  modes: ['Singleplayer'],
+  freeToPlayOnly: false,
+  lowStorageOnly: false,
+  indieOnly: false,
+  storyFocused: true
+};
 
 const features = [
   {
@@ -22,6 +36,13 @@ const features = [
 ];
 
 export default function HomePage() {
+  const [preferences, setPreferences] = useState<PreferenceAnswers>(defaultPreferences);
+
+  const handlePreferencesChange = (updated: PreferenceAnswers) => {
+    setPreferences(updated);
+    localStorage.setItem('gamewise-preferences', JSON.stringify(updated));
+  };
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
       <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
@@ -60,7 +81,7 @@ export default function HomePage() {
 
       <div className="mt-10 space-y-8">
         <DeviceScanCard />
-        <GenrePicker />
+        <GenrePicker value={preferences} onChange={handlePreferencesChange} />
       </div>
     </main>
   );
