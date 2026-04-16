@@ -15,7 +15,7 @@ export function Navbar() {
           <div className="rounded-2xl border border-cyan/30 bg-white/5 p-2 shadow-glow">
             <Cpu className="h-5 w-5 text-cyan" />
           </div>
-          GameWise
+          SPEC
         </Link>
 
         <nav className="flex items-center gap-2 text-sm text-soft">

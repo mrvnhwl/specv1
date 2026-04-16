@@ -18,40 +18,46 @@ export function detectOS(userAgent: string) {
 }
 
 export function buildDetectedDevice(): Omit<DeviceProfile, 'id' | 'createdAt' | 'lastUsedAt'> {
-  const ua = typeof window !== 'undefined' ? window.navigator.userAgent : '';
-  const osName = detectOS(ua);
-  const browser = detectBrowserName(ua);
-  const logicalCores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined;
-  const detectedDeviceMemory = typeof navigator !== 'undefined' ? (navigator as Navigator & { deviceMemory?: number }).deviceMemory : undefined;
-  const resolution = typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : undefined;
+  const ua = navigator.userAgent;
+
+  const logicalCores = navigator.hardwareConcurrency;
+  const memory = (navigator as any).deviceMemory || 4;
 
   return {
-    label: `${osName} ${browser} Device`,
-    osName,
-    browser,
-    resolution,
+    label: 'Detected Device',
+    osName: detectOS(ua),
+    browser: detectBrowserName(ua),
     logicalCores,
-    detectedDeviceMemory,
+    detectedDeviceMemory: memory,
+    ramGb: memory,
+    storageGb: 128 + logicalCores * 16,
+    resolution: `${screen.width}x${screen.height}`,
     isCurrent: true
   };
 }
 
 export function estimatePerformanceTier(device: Partial<DeviceProfile>) {
-  const cpuTier = device.logicalCores && device.logicalCores >= 12 ? 4 : device.logicalCores && device.logicalCores >= 8 ? 3 : device.logicalCores && device.logicalCores >= 4 ? 2 : 1;
-  const ramTier = device.ramGb && device.ramGb >= 16 ? 4 : device.ramGb && device.ramGb >= 12 ? 3 : device.ramGb && device.ramGb >= 8 ? 2 : 1;
-  const gpuTier = device.gpuName
-    ? /rtx 40|rx 7|rtx 30/i.test(device.gpuName)
+  const cores = device.logicalCores ?? 4;
+  const ram = device.ramGb ?? device.detectedDeviceMemory ?? 4;
+
+  let cpuTier = 1;
+  if (cores >= 16) cpuTier = 4;
+  else if (cores >= 8) cpuTier = 3;
+  else if (cores >= 4) cpuTier = 2;
+
+  let gpuTier = device.gpuName
+    ? /rtx 40|rx 7/i.test(device.gpuName)
       ? 4
-      : /gtx 16|rtx 20|rx 6/i.test(device.gpuName)
+      : /rtx 30|rx 6/i.test(device.gpuName)
         ? 3
-        : /gtx 10|rx 5|vega/i.test(device.gpuName)
+        : /gtx|vega|iris/i.test(device.gpuName)
           ? 2
           : 1
-    : Math.max(1, Math.min(4, cpuTier));
+    : cpuTier - 1;
 
   return {
     cpuTier,
-    ramTier,
-    gpuTier
+    gpuTier,
+    ramTier: ram >= 16 ? 4 : ram >= 8 ? 2 : 1
   };
 }

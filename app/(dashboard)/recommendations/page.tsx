@@ -7,9 +7,9 @@ import { scoreGames } from '@/lib/recommender';
 import { DeviceProfile, PreferenceAnswers, RecommendationResult } from '@/lib/types';
 
 const defaultPreferences: PreferenceAnswers = {
-  genres: ['RPG', 'Open World'],
+  genres: ['RPG', 'OPEN WORLD'], // ✅ normalized
   customGenre: '',
-  modes: ['Singleplayer'],
+  modes: ['SINGLEPLAYER'], // ✅ normalized
   freeToPlayOnly: false,
   lowStorageOnly: false,
   indieOnly: false,
@@ -24,7 +24,16 @@ export default function RecommendationsPage() {
   useEffect(() => {
     const savedDevices = JSON.parse(localStorage.getItem('gamewise-devices') || '[]') as DeviceProfile[];
     const savedPreferences = JSON.parse(localStorage.getItem('gamewise-preferences') || 'null') as PreferenceAnswers | null;
-    const activeDevice = savedDevices[0] || { osName: 'Windows', browser: 'Chrome', ramGb: 8, logicalCores: 8, label: 'Demo Device' };
+
+    const activeDevice =
+      savedDevices[0] || {
+        osName: 'Windows',
+        browser: 'Chrome',
+        ramGb: 8,
+        logicalCores: 8,
+        label: 'Demo Device'
+      };
+
     const activePreferences = savedPreferences || defaultPreferences;
 
     setDevice(activeDevice);
@@ -35,24 +44,28 @@ export default function RecommendationsPage() {
   const handlePreferencesChange = (updated: PreferenceAnswers) => {
     setPreferences(updated);
     localStorage.setItem('gamewise-preferences', JSON.stringify(updated));
+
     if (device) {
       setResults(scoreGames(device, updated));
     }
   };
 
-  // Filter results by selected genres and modes
+  // ✅ FIXED FILTER (case-insensitive + flexible)
   const filteredResults = results.filter((game) => {
-    // Genre filter: game must include at least one selected genre
     const genreMatch =
       preferences.genres.length === 0 ||
-      game.genres.some((g) => preferences.genres.includes(g));
+      game.genres.some((g) =>
+        preferences.genres.some(
+          (selected) => selected.toLowerCase() === g.toLowerCase()
+        )
+      );
 
-    // Mode filter: game genres or tags must include at least one selected mode
     const modeMatch =
       preferences.modes.length === 0 ||
       preferences.modes.some((mode) =>
-        game.genres.some((g) => g.toLowerCase() === mode.toLowerCase()) ||
-        game.tags.some((t) => t.toLowerCase() === mode.toLowerCase())
+        game.tags.some((t) =>
+          t.toLowerCase().includes(mode.toLowerCase())
+        )
       );
 
     return genreMatch && modeMatch;
@@ -62,7 +75,9 @@ export default function RecommendationsPage() {
     <main className="mx-auto max-w-7xl px-6 py-10">
       <section className="rounded-3xl border border-line bg-panel/90 p-6 shadow-glow">
         <p className="text-sm uppercase tracking-[0.3em] text-cyan">Recommendation Engine</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">Games matched to your current device and preferences</h1>
+        <h1 className="mt-2 text-3xl font-semibold text-white">
+          Games matched to your current device and preferences
+        </h1>
         <p className="mt-2 text-soft">
           Using <span className="text-white">{device?.label || 'your device'}</span> with genres{' '}
           <span className="text-white">

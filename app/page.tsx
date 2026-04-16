@@ -45,41 +45,67 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
-      <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+      <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        
+        {/* LEFT SIDE */}
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-cyan/20 bg-cyan/10 px-4 py-2 text-sm text-cyan">
             <Sparkles className="h-4 w-4" /> Intelligent game recommender
           </div>
+
           <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-tight text-white md:text-6xl">
             Find Steam-ready games your current PC can actually play.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-soft">
+
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-soft">
             GameWise combines device profiles, favorite genres, and recommendation scoring to suggest games that match both your hardware and your taste.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/recommendations" className="rounded-2xl bg-gradient-to-r from-accent to-cyan px-6 py-4 font-semibold text-slate-950">
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              href="/recommendations"
+              className="rounded-2xl bg-gradient-to-r from-accent to-cyan px-6 py-4 font-semibold text-slate-950 shadow-md hover:shadow-xl hover:scale-[1.02] transition"
+            >
               Open recommendations
             </Link>
-            <Link href="/devices" className="rounded-2xl border border-line bg-white/5 px-6 py-4 font-semibold text-white">
+
+            <Link
+              href="/devices"
+              className="rounded-2xl border border-line bg-white/5 px-6 py-4 font-semibold text-white hover:bg-white/10 transition"
+            >
               Manage devices
             </Link>
           </div>
         </div>
 
+        {/* RIGHT SIDE - FIXED (VERTICAL FEATURES) */}
         <div className="rounded-[2rem] border border-line bg-panel/80 p-6 shadow-glow">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-4">
             {features.map(({ icon: Icon, title, copy }) => (
-              <article key={title} className="rounded-3xl border border-line bg-white/5 p-4">
-                <Icon className="h-5 w-5 text-cyan" />
-                <h2 className="mt-4 text-base font-semibold text-white">{title}</h2>
-                <p className="mt-2 text-sm leading-6 text-soft">{copy}</p>
+              <article
+                key={title}
+                className="flex items-start gap-4 rounded-2xl border border-line bg-white/5 p-5 hover:bg-white/10 transition"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan/10 shrink-0">
+                  <Icon className="h-5 w-5 text-cyan" />
+                </div>
+
+                <div>
+                  <h2 className="text-base font-semibold text-white">
+                    {title}
+                  </h2>
+                  <p className="mt-1 text-sm leading-relaxed text-soft">
+                    {copy}
+                  </p>
+                </div>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="mt-10 space-y-8">
+      {/* LOWER SECTION */}
+      <div className="mt-12 space-y-10">
         <DeviceScanCard />
         <GenrePicker value={preferences} onChange={handlePreferencesChange} />
       </div>
