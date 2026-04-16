@@ -18,7 +18,7 @@ function isHeavyGame(game: any) {
 }
 
 // =========================
-// REALISTIC SCORING
+// 🔥 REALISTIC SPEC SCORE
 // =========================
 function getSpecScore(device: Partial<DeviceProfile>, game: any, perf: any) {
   let score = 0;
@@ -26,11 +26,11 @@ function getSpecScore(device: Partial<DeviceProfile>, game: any, perf: any) {
   const ram = device.ramGb ?? device.detectedDeviceMemory ?? 4;
   const storage = device.storageGb ?? 128;
 
-  // CPU (strict)
+  // CPU
   if (perf.cpuTier >= game.recommended.cpuTier) score += 30;
   else if (perf.cpuTier >= game.minimum.cpuTier) score += 15;
 
-  // GPU (very strict)
+  // GPU (STRICT)
   if (perf.gpuTier >= game.recommended.gpuTier) score += 35;
   else if (perf.gpuTier >= game.minimum.gpuTier) score += 15;
 
@@ -41,10 +41,8 @@ function getSpecScore(device: Partial<DeviceProfile>, game: any, perf: any) {
   // Storage
   if (storage >= game.minimum.storageGb) score += 15;
 
-  // 🔥 HEAVY GAME PENALTY
-  if (isHeavyGame(game)) {
-    score -= 10;
-  }
+  // 🔥 Heavy game penalty
+  if (isHeavyGame(game)) score -= 10;
 
   return clamp(score);
 }
@@ -62,7 +60,7 @@ function getLabel(score: number): RecommendationResult['compatibilityLabel'] {
 // =========================
 // PERFORMANCE
 // =========================
-function getPerformance(score: number) {
+function getPerformance(score: number): 'Low' | 'Medium' | 'High' | 'Ultra' {
   if (score >= 85) return 'Ultra';
   if (score >= 70) return 'High';
   if (score >= 50) return 'Medium';
@@ -70,7 +68,7 @@ function getPerformance(score: number) {
 }
 
 function getFPS(score: number) {
-  if (score >= 85) return '60+ FPS';
+  if (score >= 85) return '60–120 FPS';
   if (score >= 70) return '40–60 FPS';
   if (score >= 50) return '25–40 FPS';
   return '<25 FPS';
@@ -97,10 +95,10 @@ function getConfidence(score: number, pref: number): 'Low' | 'Medium' | 'High' {
 // GAMEPLAY COMMENT
 // =========================
 function getGameplayComment(game: any) {
-  if (game.tags.includes('Shooter')) return 'Fast-paced shooting gameplay focused on reflex and aim.';
-  if (game.tags.includes('Story Rich')) return 'Narrative-driven experience with strong storytelling.';
-  if (game.tags.includes('Open World')) return 'Large world with exploration and freedom.';
-  if (game.tags.includes('Competitive')) return 'Skill-based competitive gameplay.';
+  if (game.tags.includes('Shooter')) return 'Fast-paced FPS gameplay requiring good aim and reaction time.';
+  if (game.tags.includes('Story Rich')) return 'Story-driven experience focused on narrative and immersion.';
+  if (game.tags.includes('Open World')) return 'Large open world with exploration and freedom.';
+  if (game.tags.includes('Competitive')) return 'Competitive gameplay requiring skill and consistency.';
   return 'Balanced gameplay suitable for most players.';
 }
 
@@ -108,10 +106,13 @@ function getGameplayComment(game: any) {
 // UPGRADE SUGGESTION
 // =========================
 function getUpgrade(device: any, game: any, perf: any) {
-  if (perf.gpuTier < game.minimum.gpuTier) return 'Your GPU is the main limitation — upgrading it will greatly improve performance.';
-  if (perf.cpuTier < game.minimum.cpuTier) return 'Your CPU may bottleneck performance in this game.';
-  if ((device.ramGb ?? 4) < game.minimum.ramGb) return `Upgrade RAM to at least ${game.minimum.ramGb}GB.`;
-  return 'Your system is capable, but optimization may still be needed.';
+  if (perf.gpuTier < game.minimum.gpuTier)
+    return 'Upgrade GPU (e.g., GTX 1650 → RTX 3060) for major FPS improvement.';
+  if (perf.cpuTier < game.minimum.cpuTier)
+    return 'Upgrade CPU (e.g., i3 → i5 / Ryzen 3 → Ryzen 5) to reduce bottlenecks.';
+  if ((device.ramGb ?? 4) < game.minimum.ramGb)
+    return `Upgrade RAM to at least ${game.minimum.ramGb}GB.`;
+  return 'System is capable, but tweaking settings will improve performance.';
 }
 
 // =========================
@@ -129,6 +130,9 @@ export function scoreGames(
     const compatibilityScore = getSpecScore(device, game, perf);
     const compatibilityLabel = getLabel(compatibilityScore);
 
+    // =========================
+    // PREFERENCES
+    // =========================
     const matchedGenres = game.genres.filter((g) =>
       preferences.genres.some((p) => p.toLowerCase() === g.toLowerCase())
     );
@@ -141,32 +145,35 @@ export function scoreGames(
       )
     ).length;
 
-    let preferenceScore = genreHits * 20 + modeHits * 8 + game.rating * 0.2;
+    let preferenceScore =
+      genreHits * 20 +
+      modeHits * 8 +
+      game.rating * 0.2;
 
     // =========================
     // 🔥 EXACTLY 3 SMART REASONS
     // =========================
     const reasons: string[] = [];
 
-    // 1️⃣ GENRE
+    // 1️⃣ Genre reason
     reasons.push(
       genreHits > 0
-        ? `Matches your preferred genre(s): ${matchedGenres.join(', ')}.`
-        : 'Suggested based on popularity among similar players.'
+        ? `Matches your preferred genres: ${matchedGenres.join(', ')}.`
+        : 'Recommended based on overall popularity and player trends.'
     );
 
-    // 2️⃣ GAMEPLAY
+    // 2️⃣ Gameplay reason
     reasons.push(getGameplayComment(game));
 
-    // 3️⃣ REALISTIC PERFORMANCE (SKEPTICAL)
+    // 3️⃣ Performance reason (SMART + SKEPTICAL)
     if (compatibilityScore >= 80) {
-      reasons.push('Should run very smoothly on your system.');
+      reasons.push('Runs smoothly on your system with high settings.');
     } else if (compatibilityScore >= 65) {
-      reasons.push('Playable, but may require some settings adjustments.');
+      reasons.push('Playable, but expect occasional drops in performance.');
     } else if (compatibilityScore >= 50) {
-      reasons.push('⚠️ May struggle — lowering settings is recommended.');
+      reasons.push('⚠️ May struggle — lowering graphics settings is required.');
     } else {
-      reasons.push('⚠️ Likely to perform poorly on your current hardware.');
+      reasons.push('⚠️ Not recommended unless you upgrade your hardware.');
     }
 
     const finalScore = clamp(
@@ -184,13 +191,15 @@ export function scoreGames(
       performanceLevel: getPerformance(compatibilityScore),
       fpsEstimate: getFPS(compatibilityScore),
       recommendedSettings: getSettings(compatibilityScore),
+
+      // ⚠️ these must exist in types OR be optional
       confidence: getConfidence(compatibilityScore, preferenceScore),
       upgradeSuggestion: getUpgrade(device, game, perf),
 
       aiSummary:
         compatibilityScore >= 70
-          ? `You will likely enjoy ${game.title} as it matches your interests and should run acceptably on your device.`
-          : `You may like ${game.title}, but your current hardware could limit your experience.`
+          ? `${game.title} is a strong match for your system and preferences.`
+          : `${game.title} may run, but your hardware could limit the experience.`
     };
   }).sort((a, b) => b.finalScore - a.finalScore);
 }
