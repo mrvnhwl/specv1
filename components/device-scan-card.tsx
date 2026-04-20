@@ -72,7 +72,7 @@ export function DeviceScanCard() {
         gpuName = gpu.gpu
           ? `${gpu.gpu} (${getGpuTierLabel(gpu.tier)})`
           : `Tier ${gpu.tier} GPU`;
-      } catch (e) {
+      } catch {
         gpuName = 'Unknown GPU';
       }
 
@@ -82,11 +82,6 @@ export function DeviceScanCard() {
 
       if (cores) {
         cpuName = `${cores}-core CPU`;
-      }
-
-      // @ts-ignore
-      if (navigator.userAgentData?.brands) {
-        cpuName += ' (browser detected)';
       }
 
       setDevice(baseDevice);
@@ -152,6 +147,7 @@ export function DeviceScanCard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
+        
         {/* LEFT CARD */}
         <div className="rounded-2xl border border-line bg-white/5 p-4">
           <div className="mb-3 flex items-center gap-2 text-white">
@@ -159,30 +155,18 @@ export function DeviceScanCard() {
           </div>
 
           <div className="space-y-2 text-sm text-soft">
-            <p><span className="text-white">Label:</span> {device?.label}</p>
             <p><span className="text-white">OS:</span> {device?.osName}</p>
             <p><span className="text-white">Browser:</span> {device?.browser}</p>
-            <p><span className="text-white">Logical cores:</span> {device?.logicalCores ?? 'N/A'}</p>
-            <p><span className="text-white">Approx memory:</span> {device?.detectedDeviceMemory ? `${device.detectedDeviceMemory} GB` : 'N/A'}</p>
-            <p><span className="text-white">Resolution:</span> {device?.resolution ?? 'N/A'}</p>
+            <p><span className="text-white">Cores:</span> {device?.logicalCores ?? 'N/A'}</p>
+            <p><span className="text-white">Memory:</span> {device?.detectedDeviceMemory ? `${device.detectedDeviceMemory} GB` : 'N/A'}</p>
 
-            {/* ✅ GPU Tier */}
             <div className="mt-3">
               <span className="text-white">GPU Tier: </span>
-              <span
-                className={`px-2 py-1 rounded text-xs font-semibold ${
-                  tierLabel === 'Low'
-                    ? 'bg-red-500/20 text-red-300'
-                    : tierLabel === 'Medium'
-                    ? 'bg-yellow-500/20 text-yellow-300'
-                    : 'bg-emerald-500/20 text-emerald-300'
-                }`}
-              >
+              <span className="px-2 py-1 rounded text-xs font-semibold bg-cyan/20 text-cyan">
                 {tierLabel}
               </span>
             </div>
 
-            {/* ✅ Recommended Settings */}
             <div className="mt-3 rounded-xl border border-line bg-bg p-3 text-xs">
               <p className="text-white font-semibold mb-1">Recommended Settings</p>
               <p>Preset: {recommended.preset}</p>
@@ -196,45 +180,46 @@ export function DeviceScanCard() {
         {/* RIGHT CARD */}
         <div className="rounded-2xl border border-line bg-white/5 p-4">
           <div className="mb-3 flex items-center gap-2 text-white">
-            <Cpu className="h-4 w-4 text-cyan" /> Confirm hardware
+            <Cpu className="h-4 w-4 text-cyan" /> Hardware
           </div>
 
           <div className="grid gap-3 text-sm">
-            <input
-              value={editable.cpuName}
-              onChange={(e) => setEditable((v) => ({ ...v, cpuName: e.target.value }))}
-              placeholder="CPU (example: Ryzen 5 5600)"
-              className="rounded-2xl border border-line bg-bg px-4 py-3 text-white outline-none"
-            />
 
-            <input
-              value={editable.gpuName}
-              onChange={(e) => setEditable((v) => ({ ...v, gpuName: e.target.value }))}
-              placeholder="GPU (example: GTX 1660 Super)"
-              className="rounded-2xl border border-line bg-bg px-4 py-3 text-white outline-none"
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <label className="rounded-2xl border border-line bg-bg px-4 py-3">
-                <div className="mb-2 text-white">RAM (GB)</div>
-                <input
-                  type="number"
-                  value={editable.ramGb}
-                  onChange={(e) => setEditable((v) => ({ ...v, ramGb: Number(e.target.value) }))}
-                  className="w-full bg-transparent outline-none"
-                />
-              </label>
-
-              <label className="rounded-2xl border border-line bg-bg px-4 py-3">
-                <div className="mb-2 text-white">Storage (GB)</div>
-                <input
-                  type="number"
-                  value={editable.storageGb}
-                  onChange={(e) => setEditable((v) => ({ ...v, storageGb: Number(e.target.value) }))}
-                  className="w-full bg-transparent outline-none"
-                />
-              </label>
+            {/* ✅ CPU (READ ONLY) */}
+            <div className="rounded-2xl border border-line bg-bg px-4 py-3">
+              <p className="text-white mb-1">CPU</p>
+              <p className="text-soft">{editable.cpuName}</p>
+              <p className="text-xs opacity-60">Auto-detected</p>
             </div>
+
+            {/* ✅ GPU (READ ONLY) */}
+            <div className="rounded-2xl border border-line bg-bg px-4 py-3">
+              <p className="text-white mb-1">GPU</p>
+              <p className="text-soft">{editable.gpuName}</p>
+              <p className="text-xs opacity-60">Auto-detected</p>
+            </div>
+
+            {/* ✅ RAM */}
+            <label className="rounded-2xl border border-line bg-bg px-4 py-3">
+              <div className="mb-2 text-white">RAM (GB)</div>
+              <input
+                type="number"
+                value={editable.ramGb}
+                onChange={(e) => setEditable((v) => ({ ...v, ramGb: Number(e.target.value) }))}
+                className="w-full bg-transparent outline-none"
+              />
+            </label>
+
+            {/* ✅ STORAGE */}
+            <label className="rounded-2xl border border-line bg-bg px-4 py-3">
+              <div className="mb-2 text-white">Storage (GB)</div>
+              <input
+                type="number"
+                value={editable.storageGb}
+                onChange={(e) => setEditable((v) => ({ ...v, storageGb: Number(e.target.value) }))}
+                className="w-full bg-transparent outline-none"
+              />
+            </label>
 
             <button
               onClick={saveLocally}

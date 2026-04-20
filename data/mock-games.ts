@@ -624,6 +624,32 @@ export const mockGames: GameEntry[] = [
   rating: 94,
   minimum: { cpuTier: 3, gpuTier: 3, ramGb: 8, storageGb: 70 },
   recommended: { cpuTier: 4, gpuTier: 4, ramGb: 16, storageGb: 90 }
+},
+{
+  id: '52',
+  steamAppId: 1817070,
+  title: "Marvel's Spider-Man Remastered",
+  genres: ['Action', 'Adventure'],
+  tags: ['Open World', 'Story Rich', 'Superhero'],
+  image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1817070/header.jpg',
+  shortDescription: 'Play as Peter Parker in a story-driven open-world Spider-Man adventure in New York City.',
+  isFree: false,
+  rating: 90,
+  minimum: { cpuTier: 3, gpuTier: 3, ramGb: 8, storageGb: 75 },
+  recommended: { cpuTier: 4, gpuTier: 4, ramGb: 16, storageGb: 100 }
+},
+{
+  id: '53',
+  steamAppId: 782330,
+  title: 'DOOM Eternal',
+  genres: ['Action', 'Shooter'],
+  tags: ['FPS', 'Fast-Paced', 'Singleplayer'],
+  image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/782330/header.jpg',
+  shortDescription: 'Fast-paced first-person shooter with intense combat and demon-slaying action.',
+  isFree: false,
+  rating: 91,
+  minimum: { cpuTier: 2, gpuTier: 2, ramGb: 8, storageGb: 50 },
+  recommended: { cpuTier: 3, gpuTier: 3, ramGb: 16, storageGb: 70 }
 }
   
 

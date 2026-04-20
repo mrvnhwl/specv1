@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Navbar } from '@/components/navbar';
 
 export const metadata: Metadata = {
-  title: 'GameWise',
+  title: 'SPEC',
   description: 'Intelligent PC game recommender based on specs and user preferences.'
 };
 
