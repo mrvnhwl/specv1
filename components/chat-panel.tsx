@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ChatMessage, DeviceProfile, PreferenceAnswers } from '@/lib/types';
+
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+type DeviceProfile = Record<string, any>;
+type PreferenceAnswers = Record<string, any>;
 
 export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -22,7 +30,7 @@ export function ChatPanel() {
 
   // LOAD DEVICE + PREFS
   useEffect(() => {
-    const savedDevices = JSON.parse(localStorage.getItem('gamewise-devices') || '[]') as DeviceProfile[];
+    const savedDevices = JSON.parse(localStorage.getItem('gamewise-devices') || '[]');
     const savedPreferences = JSON.parse(localStorage.getItem('gamewise-preferences') || 'null');
 
     setDevice(savedDevices[0]);
@@ -48,7 +56,7 @@ export function ChatPanel() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/chat', { // ✅ CORRECT ROUTE
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,6 +97,52 @@ export function ChatPanel() {
     if (e.key === 'Enter') send();
   };
 
+  // ✅ FORMATTER FUNCTION (MAIN UPGRADE)
+  const formatMessage = (text: string) => {
+    return text.split('\n').map((line, i) => {
+      const trimmed = line.trim();
+
+      // Empty line spacing
+      if (!trimmed) {
+        return <div key={i} className="h-2" />;
+      }
+
+      // Numbered section (1. 2. 3.)
+      if (/^\d+\./.test(trimmed)) {
+        return (
+          <p key={i} className="mt-3 font-semibold text-white">
+            {trimmed}
+          </p>
+        );
+      }
+
+      // Bullet points
+      if (trimmed.startsWith('-')) {
+        return (
+          <li key={i} className="ml-5 list-disc text-soft">
+            {trimmed.replace('-', '').trim()}
+          </li>
+        );
+      }
+
+      // First line (intro)
+      if (i === 0) {
+        return (
+          <p key={i} className="mb-2 font-medium text-white">
+            {trimmed}
+          </p>
+        );
+      }
+
+      // Normal text
+      return (
+        <p key={i} className="text-soft leading-relaxed">
+          {trimmed}
+        </p>
+      );
+    });
+  };
+
   return (
     <section className="rounded-3xl border border-line bg-panel/90 p-6 shadow-glow flex flex-col h-[70vh]">
 
@@ -109,10 +163,14 @@ export function ChatPanel() {
                 : 'ml-auto bg-gradient-to-r from-accent to-cyan text-slate-950'
             }`}
           >
-            {m.content}
+            {m.role === 'assistant'
+              ? formatMessage(m.content)
+              : m.content}
           </div>
         ))}
+
         {loading && <p className="text-soft text-sm">Thinking...</p>}
+
         <div ref={bottomRef} />
       </div>
 
