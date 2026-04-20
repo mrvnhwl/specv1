@@ -4,7 +4,7 @@ import { Cpu, Gamepad2, MessageSquare, MonitorSmartphone } from 'lucide-react';
 const links = [
   { href: '/devices', label: 'Devices', icon: MonitorSmartphone },
   { href: '/recommendations', label: 'Recommendations', icon: Gamepad2 },
-  { href: '/chat', label: 'Upgrade Chat', icon: MessageSquare }
+  { href: '/chat', label: 'Upgrade Assistant', icon: MessageSquare }
 ];
 
 export function Navbar() {
@@ -25,9 +25,7 @@ export function Navbar() {
               {label}
             </Link>
           ))}
-          <Link href="/login" className="rounded-full bg-gradient-to-r from-accent to-cyan px-4 py-2 font-medium text-slate-950">
-            Login
-          </Link>
+
         </nav>
       </div>
     </header>

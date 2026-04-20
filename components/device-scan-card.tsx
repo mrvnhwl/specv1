@@ -13,7 +13,6 @@ const initialEditable = {
   storageGb: 256
 };
 
-// ✅ Helpers
 function getGpuTierLabel(tier?: number | null) {
   if (tier === null || tier === undefined) return 'Unknown';
   if (tier <= 1) return 'Low';
@@ -27,29 +26,14 @@ function getRecommendedSettings(tier?: number | null) {
   }
 
   if (tier <= 1) {
-    return {
-      preset: 'Low',
-      resolution: '720p',
-      fps: '30 FPS',
-      notes: 'Best for lightweight games only'
-    };
+    return { preset: 'Low', resolution: '720p', fps: '30 FPS', notes: 'Best for lightweight games only' };
   }
 
   if (tier === 2) {
-    return {
-      preset: 'Medium',
-      resolution: '1080p',
-      fps: '30–60 FPS',
-      notes: 'Balanced performance'
-    };
+    return { preset: 'Medium', resolution: '1080p', fps: '30–60 FPS', notes: 'Balanced performance' };
   }
 
-  return {
-    preset: 'High',
-    resolution: '1080p / 1440p',
-    fps: '60+ FPS',
-    notes: 'Good for modern games'
-  };
+  return { preset: 'High', resolution: '1080p / 1440p', fps: '60+ FPS', notes: 'Good for modern games' };
 }
 
 export function DeviceScanCard() {
@@ -67,7 +51,6 @@ export function DeviceScanCard() {
 
       try {
         const gpu = await getGPUTier();
-
         tier = gpu.tier;
         gpuName = gpu.gpu
           ? `${gpu.gpu} (${getGpuTierLabel(gpu.tier)})`
@@ -76,7 +59,6 @@ export function DeviceScanCard() {
         gpuName = 'Unknown GPU';
       }
 
-      // CPU detection
       let cpuName = 'Unknown CPU';
       const cores = navigator.hardwareConcurrency;
 
@@ -134,9 +116,6 @@ export function DeviceScanCard() {
           <h2 className="mt-2 text-2xl font-semibold text-white">
             Scan current device and complete missing specs
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-soft">
-            Browser-based detection can only read limited device information.
-          </p>
         </div>
 
         {saved && (
@@ -147,33 +126,86 @@ export function DeviceScanCard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        
-        {/* LEFT CARD */}
-        <div className="rounded-2xl border border-line bg-white/5 p-4">
-          <div className="mb-3 flex items-center gap-2 text-white">
-            <Monitor className="h-4 w-4 text-cyan" /> Detected info
+
+        {/* 🔥 IMPROVED DETECTED INFO */}
+        <div className="rounded-2xl border border-line bg-white/5 p-4 space-y-3">
+
+          <div className="flex items-center gap-2 text-white font-semibold">
+            <Monitor className="h-4 w-4 text-cyan" /> Detected Info
           </div>
 
           <div className="space-y-2 text-sm text-soft">
-            <p><span className="text-white">OS:</span> {device?.osName}</p>
-            <p><span className="text-white">Browser:</span> {device?.browser}</p>
-            <p><span className="text-white">Cores:</span> {device?.logicalCores ?? 'N/A'}</p>
-            <p><span className="text-white">Memory:</span> {device?.detectedDeviceMemory ? `${device.detectedDeviceMemory} GB` : 'N/A'}</p>
 
-            <div className="mt-3">
-              <span className="text-white">GPU Tier: </span>
-              <span className="px-2 py-1 rounded text-xs font-semibold bg-cyan/20 text-cyan">
-                {tierLabel}
-              </span>
+            <div className="flex justify-between">
+              <span>OS</span>
+              <span className="text-white">{device?.osName}</span>
             </div>
 
-            <div className="mt-3 rounded-xl border border-line bg-bg p-3 text-xs">
-              <p className="text-white font-semibold mb-1">Recommended Settings</p>
-              <p>Preset: {recommended.preset}</p>
-              <p>Resolution: {recommended.resolution}</p>
-              <p>FPS: {recommended.fps}</p>
-              <p className="opacity-70">{recommended.notes}</p>
+            <div className="flex justify-between">
+              <span>Browser</span>
+              <span className="text-white">{device?.browser}</span>
             </div>
+
+            <div className="flex justify-between">
+              <span>CPU</span>
+              <span className="text-white">{editable.cpuName}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>GPU</span>
+              <span className="text-white">{editable.gpuName}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>RAM</span>
+              <span className="text-white">{editable.ramGb} GB</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>GPU Tier</span>
+              <span className="text-cyan">{tierLabel}</span>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-2xl border border-line bg-bg p-4">
+            <p className="text-white font-semibold mb-3 text-sm">
+              Recommended Settings
+            </p>
+
+            <div className="grid grid-cols-3 gap-3 text-center">
+
+              {/* PRESET */}
+              <div className="rounded-xl bg-white/5 p-3">
+                <p className="text-xs text-soft mb-1">Preset</p>
+                <p className="text-sm font-semibold text-cyan">
+                  {recommended.preset}
+                </p>
+              </div>
+
+              {/* RESOLUTION */}
+              <div className="rounded-xl bg-white/5 p-3">
+                <p className="text-xs text-soft mb-1">Resolution</p>
+                <p className="text-sm font-semibold text-white">
+                  {recommended.resolution}
+                </p>
+              </div>
+
+              {/* FPS */}
+              <div className="rounded-xl bg-white/5 p-3">
+                <p className="text-xs text-soft mb-1">FPS</p>
+                <p className="text-sm font-semibold text-emerald-400">
+                  {recommended.fps}
+                </p>
+              </div>
+
+            </div>
+
+            {/* OPTIONAL NOTE */}
+            {recommended.notes && (
+              <p className="mt-3 text-xs text-soft text-center">
+                {recommended.notes}
+              </p>
+            )}
           </div>
         </div>
 
@@ -185,32 +217,28 @@ export function DeviceScanCard() {
 
           <div className="grid gap-3 text-sm">
 
-            {/* ✅ CPU (READ ONLY) */}
+            {/* CPU */}
             <div className="rounded-2xl border border-line bg-bg px-4 py-3">
               <p className="text-white mb-1">CPU</p>
               <p className="text-soft">{editable.cpuName}</p>
               <p className="text-xs opacity-60">Auto-detected</p>
             </div>
 
-            {/* ✅ GPU (READ ONLY) */}
+            {/* GPU */}
             <div className="rounded-2xl border border-line bg-bg px-4 py-3">
               <p className="text-white mb-1">GPU</p>
               <p className="text-soft">{editable.gpuName}</p>
               <p className="text-xs opacity-60">Auto-detected</p>
             </div>
 
-            {/* ✅ RAM */}
-            <label className="rounded-2xl border border-line bg-bg px-4 py-3">
-              <div className="mb-2 text-white">RAM (GB)</div>
-              <input
-                type="number"
-                value={editable.ramGb}
-                onChange={(e) => setEditable((v) => ({ ...v, ramGb: Number(e.target.value) }))}
-                className="w-full bg-transparent outline-none"
-              />
-            </label>
+            {/* 🔒 RAM (NOW READ ONLY) */}
+            <div className="rounded-2xl border border-line bg-bg px-4 py-3">
+              <p className="text-white mb-1">RAM</p>
+              <p className="text-soft">{editable.ramGb} GB</p>
+              <p className="text-xs opacity-60">Auto-detected</p>
+            </div>
 
-            {/* ✅ STORAGE */}
+            {/* STORAGE (still editable) */}
             <label className="rounded-2xl border border-line bg-bg px-4 py-3">
               <div className="mb-2 text-white">Storage (GB)</div>
               <input

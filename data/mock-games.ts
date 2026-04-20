@@ -82,7 +82,7 @@ export const mockGames: GameEntry[] = [
   {
     id: '7',
     steamAppId: 1245620,
-    title: 'ELDEN RING',
+    title: 'Elden Ring',
     genres: ['RPG', 'Action', 'Adventure'],
     tags: ['Souls-like', 'Open World', 'Fantasy'],
     image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg',
