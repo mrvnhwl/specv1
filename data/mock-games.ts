@@ -340,19 +340,6 @@ export const mockGames: GameEntry[] = [
     recommended: { cpuTier: 3, gpuTier: 3, ramGb: 16, storageGb: 80 }
   },
   {
-    id: '27',
-    steamAppId: 431960,
-    title: 'Wallpaper Engine',
-    genres: ['Utility', 'Simulation'],
-    tags: ['Customization', 'Desktop', 'Performance'],
-    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/431960/header.jpg',
-    shortDescription: 'Animate and customize your desktop wallpapers.',
-    isFree: false,
-    rating: 98,
-    minimum: { cpuTier: 1, gpuTier: 1, ramGb: 2, storageGb: 1 },
-    recommended: { cpuTier: 2, gpuTier: 2, ramGb: 4, storageGb: 2 }
-  },
-  {
     id: '28',
     steamAppId: 1086940,
     title: 'Baldur’s Gate 3',
