@@ -56,7 +56,7 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-soft">
-            GameWise analyzes your device and recommends games that match your performance.
+            Spec analyzes your device and recommends games that match your performance.
             No more guessing. No more wasted downloads.
           </p>
 

@@ -97,17 +97,20 @@ export function ChatPanel() {
     if (e.key === 'Enter') send();
   };
 
-  // ✅ FORMATTER FUNCTION (MAIN UPGRADE)
+  // ✅ UPDATED FORMATTER (ASTERISK REMOVED)
   const formatMessage = (text: string) => {
     return text.split('\n').map((line, i) => {
-      const trimmed = line.trim();
+      let trimmed = line.trim();
+
+      // 🔥 REMOVE ALL ASTERISKS (MAIN FIX)
+      trimmed = trimmed.replace(/\*\*/g, '');
 
       // Empty line spacing
       if (!trimmed) {
         return <div key={i} className="h-2" />;
       }
 
-      // Numbered section (1. 2. 3.)
+      // Numbered section
       if (/^\d+\./.test(trimmed)) {
         return (
           <p key={i} className="mt-3 font-semibold text-white">
@@ -125,7 +128,7 @@ export function ChatPanel() {
         );
       }
 
-      // First line (intro)
+      // First line
       if (i === 0) {
         return (
           <p key={i} className="mb-2 font-medium text-white">

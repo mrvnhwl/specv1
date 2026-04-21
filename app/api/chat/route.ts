@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const allowedKeywords = [
       "gpu", "cpu", "ram", "ssd", "storage",
       "upgrade", "fps", "game", "compatibility",
-      "pc", "laptop", "spec", "build", "performance"
+      "pc", "laptop", "spec", "build", "performance", "status"
     ];
 
     const isValid = allowedKeywords.some(keyword =>
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       model: "models/gemini-2.5-flash",
     });
 
-    // ✅ ADVANCED CONTROLLED PROMPT
+    // 🔥 IMPROVED PROMPT (MAIN UPGRADE)
     const prompt = `
 You are a STRICT PC hardware assistant.
 
@@ -51,15 +51,32 @@ SCOPE RULES
 - If unsure, stay within scope
 - DO NOT answer unrelated topics
 
-
 =====================
 STYLE RULES
 =====================
-- Use bullet points with "-"
-- No long paragraphs
-- Be concise and clear
+- Use ONLY "-" for bullet points
+- DO NOT use markdown symbols like ** or *
+- DO NOT use emojis
+- DO NOT use long paragraphs
+- Keep answers concise and structured
 - Sound like a PC expert
-- Do NOT repeat the question
+
+=====================
+FORMAT RULES (VERY IMPORTANT)
+=====================
+- ALWAYS divide answers into sections
+- Use EXACT section titles when applicable:
+
+System Overview:
+Esports Titles:
+AAA Games:
+Performance Notes:
+Storage Recommendation:
+General Upgrade Advice and Recommendation:
+
+- Each section MUST be separated by a blank line
+- Each section MUST contain bullet points
+- Keep everything easy to scan (user-friendly)
 
 =====================
 USER DATA
@@ -70,11 +87,45 @@ ${JSON.stringify(device, null, 2)}
 Preferences:
 ${JSON.stringify(preferences, null, 2)}
 
-Question:
+=====================
+QUESTION
+=====================
 ${message}
+
+=====================
+OUTPUT EXAMPLE FORMAT
+=====================
+
+Short intro sentence.
+
+System Overview:
+- GPU: ...
+- RAM: ...
+- CPU: ...
+
+Esports Titles:
+Short intro sentence.
+- Game 1
+- Game 2
+
+AAA Games:
+Short intro sentence.
+- Game - Settings
+
+CPU Recommendation:
+- Advice here
+
+GPU Recommendation:
+- Advice here
+
+RAM Recommendation:
+- Advice here
+
+Storage Recommendation:
+- Advice here
 `;
 
-    // ✅ RETRY LOGIC (SMART)
+    // ✅ RETRY LOGIC
     let attempts = 3;
     let responseText = "";
 
@@ -93,8 +144,17 @@ ${message}
       }
     }
 
-    // ✅ FALLBACK (if AI returns empty)
-    if (!responseText || responseText.trim() === "") {
+    // ✅ CLEAN OUTPUT (FINAL SAFETY)
+    if (responseText) {
+      // remove unwanted markdown if AI still outputs it
+      responseText = responseText
+        .replace(/\*\*/g, '')   // remove **
+        .replace(/\*/g, '')     // remove *
+        .trim();
+    }
+
+    // ✅ FALLBACK
+    if (!responseText) {
       responseText =
         "⚠️ Unable to generate a response. Please try again.";
     }
