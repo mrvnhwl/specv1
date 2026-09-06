@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { isSupabaseConfigured, supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -13,6 +13,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleAuth = async () => {
+    if (!isSupabaseConfigured) {
+      alert('Authentication is not configured yet. Add the Supabase environment variables in Vercel.');
+      return;
+    }
+
     setLoading(true);
 
     if (isSignup) {
@@ -49,6 +54,11 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!isSupabaseConfigured) {
+      alert('Authentication is not configured yet. Add the Supabase environment variables in Vercel.');
+      return;
+    }
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
     });
