@@ -48,6 +48,7 @@ export function DeviceScanCard() {
 
       let gpuName = '';
       let tier: number | null = null;
+      let storageGb: number | undefined;
 
       try {
         const gpu = await getGPUTier();
@@ -57,6 +58,30 @@ export function DeviceScanCard() {
           : `Tier ${gpu.tier} GPU`;
       } catch {
         gpuName = 'Unknown GPU';
+      }
+
+      try {
+        const browserNavigator = navigator as Navigator & {
+          gpu?: { requestAdapter: () => Promise<any> };
+        };
+        const adapter = await browserNavigator.gpu?.requestAdapter();
+        const adapterInfo = adapter?.info || await adapter?.requestAdapterInfo?.();
+        const preciseGpuName = adapterInfo?.device || adapterInfo?.description;
+
+        if (preciseGpuName) {
+          gpuName = preciseGpuName;
+        }
+      } catch {
+        // WebGPU is optional; the tier detector remains the fallback.
+      }
+
+      try {
+        const estimate = await navigator.storage?.estimate();
+        if (estimate?.quota) {
+          storageGb = Math.max(1, Math.round(estimate.quota / 1024 ** 3));
+        }
+      } catch {
+        // Storage estimates are optional and browser-dependent.
       }
 
       let cpuName = 'Unknown CPU';
@@ -73,7 +98,8 @@ export function DeviceScanCard() {
         ...prev,
         cpuName,
         gpuName,
-        ramGb: baseDevice.detectedDeviceMemory || prev.ramGb
+        ramGb: baseDevice.detectedDeviceMemory || prev.ramGb,
+        storageGb: storageGb || prev.storageGb
       }));
     };
 
@@ -240,13 +266,14 @@ export function DeviceScanCard() {
 
             {/* STORAGE (still editable) */}
             <label className="rounded-2xl border border-line bg-bg px-4 py-3">
-              <div className="mb-2 text-white">Storage (GB)</div>
+              <div className="mb-2 text-white">Storage estimate (GB)</div>
               <input
                 type="number"
                 value={editable.storageGb}
                 onChange={(e) => setEditable((v) => ({ ...v, storageGb: Number(e.target.value) }))}
                 className="w-full bg-transparent outline-none"
               />
+              <p className="mt-1 text-xs opacity-60">Browser quota estimate; confirm for accuracy.</p>
             </label>
 
             <button

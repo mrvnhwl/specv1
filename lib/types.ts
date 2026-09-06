@@ -77,6 +77,35 @@ export type GameEntry = {
 
   minimum: GameRequirementTier;
   recommended: GameRequirementTier;
+
+  // 🎮 External API Enhancements (optional)
+  steamData?: {
+    about_the_game?: string;
+    header_image?: string;
+    is_free?: boolean;
+    metacritic?: { score: number };
+    genres?: Array<{ description: string }>;
+    categories?: Array<{ description: string }>;
+    [key: string]: any;
+  };
+
+  rawgData?: {
+    description_raw?: string;
+    background_image?: string;
+    rating?: number;
+    ratings?: Array<any>;
+    added?: string;
+    updated?: string;
+    esrb_rating?: { name: string };
+    platforms?: Array<{ name: string }>;
+    genres?: Array<{ name: string }>;
+    tags?: Array<{ name: string }>;
+    [key: string]: any;
+  };
+
+  // Computed ratings from external APIs
+  steamRating?: number;      // 0-100 scale
+  rawgRating?: number;       // 0-100 scale (converted from 0-5)
 };
 
 

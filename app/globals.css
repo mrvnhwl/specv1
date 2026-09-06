@@ -13,18 +13,36 @@
 html, body {
   margin: 0;
   min-height: 100%;
-  background: #08111f;
+  background: #071014;
   color: white;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-space-grotesk), "Trebuchet MS", ui-sans-serif, sans-serif;
 }
 
 body {
-  background-image: radial-gradient(circle at top left, rgba(139, 92, 246, 0.15), transparent 30%), radial-gradient(circle at top right, rgba(34, 211, 238, 0.12), transparent 25%), linear-gradient(180deg, rgba(10, 14, 23, 0.9), rgba(8, 17, 31, 1));
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(255, 107, 53, 0.18), transparent 28%),
+    radial-gradient(circle at 90% 12%, rgba(0, 255, 170, 0.11), transparent 23%),
+    linear-gradient(180deg, #071014 0%, #091316 50%, #071014 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><path d="M0 36h72M36 0v72M18 18h36M18 54h36" stroke="rgba(168, 219, 213, .045)" stroke-width="1"/></svg>');
+  background-attachment: fixed;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Custom utilities for distinctive design */
+.hardware-glow {
+  box-shadow: 0 0 0 1px rgba(255,107,53,0.25), 0 8px 32px rgba(0,255,170,0.1);
+}
+
+.chip-style {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" rx="4" fill="rgba(10,10,10,0.3)"/><circle cx="20" cy="20" r="8" fill="rgba(255,107,53,0.1)"/><rect x="10" y="10" width="20" height="20" rx="2" fill="rgba(0,255,170,0.05)"/></svg>');
+}
+
+.circuit-bg {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="none"/><path d="M0,30 L60,30 M30,0 L30,60 M15,15 L45,15 M15,45 L45,45" stroke="rgba(0,255,170,0.03)" stroke-width="0.5"/></svg>');
 }
 
 @keyframes scroll {
@@ -40,4 +58,54 @@ a {
   display: flex;
   width: max-content;
   animation: scroll 100s linear infinite;
+}
+
+.hero-grid {
+  background-image: linear-gradient(rgba(151, 231, 216, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(151, 231, 216, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.eyebrow {
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.display-heading {
+  font-family: var(--font-space-grotesk), "Trebuchet MS", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+/* Hardware-inspired button styles */
+.btn-gpu {
+  @apply bg-gradient-to-r from-accent to-accentSecondary text-white font-semibold px-6 py-3 rounded-2xl hardware-glow hover:shadow-[0_0_0_2px_rgba(255,107,53,0.3),0_8px_32px_rgba(0,255,170,0.2)] transition-all duration-200;
+}
+
+.btn-circuit {
+  @apply border border-line bg-white/5 text-white font-semibold px-6 py-3 rounded-2xl circuit-bg hover:bg-white/10 transition-all duration-200;
+}
+
+.btn-silver {
+  @apply bg-silver/10 border border-silver/20 text-silver font-semibold px-6 py-3 rounded-2xl hover:bg-silver/20 transition-all duration-200;
+}
+
+/* Typographic enhancements */
+.h1-gaming {
+  @apply text-6xl font-display font-bold leading-tight text-white md:text-7xl lg:text-8xl;
+  letter-spacing: -0.025em;
+}
+
+.h2-gaming {
+  @apply text-3xl font-display font-semibold text-white md:text-4xl;
+  letter-spacing: -0.02em;
+}
+
+.text-chip {
+  @apply font-mono text-sm text-accent;
+}
+
+.section-divider {
+  @apply border-t border-line/50 my-12;
 }

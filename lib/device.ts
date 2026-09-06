@@ -30,7 +30,6 @@ export function buildDetectedDevice(): Omit<DeviceProfile, 'id' | 'createdAt' | 
     logicalCores,
     detectedDeviceMemory: memory,
     ramGb: memory,
-    storageGb: 128 + logicalCores * 16,
     resolution: `${screen.width}x${screen.height}`,
     isCurrent: true
   };

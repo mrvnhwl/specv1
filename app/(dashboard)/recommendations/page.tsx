@@ -21,33 +21,58 @@ export default function RecommendationsPage() {
   const [preferences, setPreferences] = useState<PreferenceAnswers>(defaultPreferences);
   const [results, setResults] = useState<RecommendationResult[]>([]);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedDevices = JSON.parse(localStorage.getItem('gamewise-devices') || '[]') as DeviceProfile[];
-    const savedPreferences = JSON.parse(localStorage.getItem('gamewise-preferences') || 'null') as PreferenceAnswers | null;
+    const loadRecommendations = async () => {
+      setLoading(true);
 
-    const activeDevice =
-      savedDevices[0] || {
-        osName: 'Windows',
-        browser: 'Chrome',
-        ramGb: 8,
-        logicalCores: 8,
-        label: 'Demo Device'
-      };
+      const savedDevices = JSON.parse(localStorage.getItem('gamewise-devices') || '[]') as DeviceProfile[];
+      const savedPreferences = JSON.parse(localStorage.getItem('gamewise-preferences') || 'null') as PreferenceAnswers | null;
 
-    const activePreferences = savedPreferences || defaultPreferences;
+      const activeDevice =
+        savedDevices[0] || {
+          osName: 'Windows',
+          browser: 'Chrome',
+          ramGb: 8,
+          logicalCores: 8,
+          label: 'Demo Device'
+        };
 
-    setDevice(activeDevice);
-    setPreferences(activePreferences);
-    setResults(scoreGames(activeDevice, activePreferences));
+      const activePreferences = savedPreferences || defaultPreferences;
+
+      setDevice(activeDevice);
+      setPreferences(activePreferences);
+
+      try {
+        const gameResults = await scoreGames(activeDevice, activePreferences);
+        setResults(gameResults);
+      } catch (error) {
+        console.error('Error loading recommendations:', error);
+        setResults([]); // fallback to empty results
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecommendations();
   }, []);
 
-  const handlePreferencesChange = (updated: PreferenceAnswers) => {
+  const handlePreferencesChange = async (updated: PreferenceAnswers) => {
     setPreferences(updated);
     localStorage.setItem('gamewise-preferences', JSON.stringify(updated));
 
     if (device) {
-      setResults(scoreGames(device, updated));
+      setLoading(true);
+      try {
+        const gameResults = await scoreGames(device, updated);
+        setResults(gameResults);
+      } catch (error) {
+        console.error('Error updating recommendations:', error);
+        setResults([]); // fallback to empty results
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -121,6 +146,13 @@ export default function RecommendationsPage() {
           className="w-full rounded-2xl border border-line bg-bg px-4 py-3 text-white outline-none placeholder:text-slate-500"
         />
       </div>
+
+      {/* LOADING STATE */}
+      {loading && (
+        <div className="mt-8 col-span-full text-center">
+          <p className="text-soft">Loading recommendations...</p>
+        </div>
+      )}
 
       {/* RESULTS */}
       <section className="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">

@@ -1,6 +1,8 @@
 import { mockGames } from '@/data/mock-games';
 import { estimatePerformanceTier } from '@/lib/device';
 import { DeviceProfile, PreferenceAnswers, RecommendationResult } from '@/lib/types';
+import { enhanceGameWithSteamData } from '@/lib/services/steam';
+import { enhanceGameWithRawgData } from '@/lib/services/rawg';
 
 function clamp(value: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value));
@@ -116,31 +118,76 @@ function getUpgrade(device: any, game: any, perf: any) {
 }
 
 // =========================
+// ENHANCE GAME WITH EXTERNAL APIS
+// =========================
+async function enhanceGameData(game: any): Promise<any> {
+  // Try to enhance with Steam data first (if Steam App ID exists)
+  if (game.steamAppId && game.steamAppId !== 0) {
+    try {
+      const steamEnhanced = await enhanceGameWithSteamData(game);
+      if (steamEnhanced) {
+        // Try to further enhance with RAWG data as backup
+        try {
+          const rawgEnhanced = await enhanceGameWithRawgData(steamEnhanced);
+          return rawgEnhanced;
+        } catch (rawgError) {
+          console.warn(`RAWG enhancement failed for ${game.title}:`, rawgError);
+          return steamEnhanced;
+        }
+      }
+    } catch (steamError) {
+      console.warn(`Steam enhancement failed for ${game.title}:`, steamError);
+      // Fallback to RAWG if Steam fails
+      try {
+        const rawgEnhanced = await enhanceGameWithRawgData(game);
+        return rawgEnhanced;
+      } catch (rawgError) {
+        console.warn(`RAWG enhancement also failed for ${game.title}:`, rawgError);
+        return game;
+      }
+    }
+  } else {
+    // No Steam ID, try RAWG directly
+    try {
+      return await enhanceGameWithRawgData(game);
+    } catch (error) {
+      console.warn(`RAWG enhancement failed for ${game.title}:`, error);
+      return game;
+    }
+  }
+
+  return game; // fallback
+}
+
+// =========================
 // MAIN FUNCTION
 // =========================
-export function scoreGames(
+export async function scoreGames(
   device: Partial<DeviceProfile>,
   preferences: PreferenceAnswers
-): RecommendationResult[] {
-
+): Promise<RecommendationResult[]> {
   const perf = estimatePerformanceTier(device);
 
-  return mockGames.map((game) => {
+  // Enhance game data with external APIs
+  const enhancedGames = await Promise.all(
+    mockGames.map(game => enhanceGameData(game))
+  );
 
+  return enhancedGames.map((game) => {
     const compatibilityScore = getSpecScore(device, game, perf);
     const compatibilityLabel = getLabel(compatibilityScore);
 
     // =========================
     // PREFERENCES
     // =========================
-    const matchedGenres = game.genres.filter((g) =>
-      preferences.genres.some((p) => p.toLowerCase() === g.toLowerCase())
+    const matchedGenres = game.genres.filter((g: string) =>
+      preferences.genres.some((p: string) => p.toLowerCase() === g.toLowerCase())
     );
 
     const genreHits = matchedGenres.length;
 
-    const modeHits = game.tags.filter((tag) =>
-      preferences.modes.some((mode) =>
+    const modeHits = game.tags.filter((tag: string) =>
+      preferences.modes.some((mode: string) =>
         tag.toLowerCase().includes(mode.toLowerCase())
       )
     ).length;
@@ -148,7 +195,7 @@ export function scoreGames(
     let preferenceScore =
       genreHits * 20 +
       modeHits * 8 +
-      game.rating * 0.2;
+      (game.steamRating || game.rawgRating || game.rating) * 0.2;
 
     // =========================
     // 🔥 EXACTLY 3 SMART REASONS

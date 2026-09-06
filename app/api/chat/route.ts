@@ -1,16 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { answerUpgradeQuestion } from '@/lib/mock-chat';
 
 export async function POST(req: Request) {
+  let requestMessage = '';
+  let requestDevice = {};
+
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+    const { message, device = {}, preferences = {} } = await req.json();
+    requestMessage = typeof message === 'string' ? message : '';
+    requestDevice = device;
 
     if (!apiKey) {
-      throw new Error("Missing GEMINI_API_KEY");
+      return Response.json({ reply: answerUpgradeQuestion(message || '', device) });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    const { message, device, preferences } = await req.json();
+    if (typeof message !== 'string' || !message.trim()) {
+      return Response.json({ reply: 'Ask me about upgrades, compatibility, or gaming performance.' }, { status: 400 });
+    }
 
     // ✅ STRICT RULE-BASED FILTER
     const allowedKeywords = [
@@ -31,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "models/gemini-2.5-flash",
+      model: "gemini-2.5-flash",
     });
 
     // 🔥 IMPROVED PROMPT (MAIN UPGRADE)
@@ -166,10 +175,8 @@ Storage Recommendation:
 
     return Response.json(
       {
-        reply:
-          "⚠️ AI is currently busy or unavailable. Please try again.",
-      },
-      { status: 500 }
+        reply: answerUpgradeQuestion(requestMessage, requestDevice)
+      }
     );
   }
 }
